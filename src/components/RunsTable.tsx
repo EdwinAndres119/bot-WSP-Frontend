@@ -4,11 +4,19 @@ import { ApiError, getEmptyExportUrl, getExportUrl, getRuns } from '../api/clien
 import type { RunRecord } from '../api/types'
 import { EmptyChatsList } from './EmptyChatsList'
 import { FailedChatsList } from './FailedChatsList'
+import { Badge } from './ui/badge'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
 type Panel = 'failed' | 'empty'
 type Expanded = { runId: number; panel: Panel } | null
 
 const COLUMN_COUNT = 12
+
+const STATUS_VARIANT: Record<RunRecord['status'], 'default' | 'secondary' | 'destructive'> = {
+  completed: 'default',
+  running: 'secondary',
+  error: 'destructive',
+}
 
 function formatDate(iso: string | null) {
   if (!iso) return '—'
@@ -45,7 +53,7 @@ export function RunsTable() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-3 p-6">
+    <div className="mx-auto max-w-[110rem] space-y-3 p-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Corridas</h2>
         <button
@@ -59,38 +67,38 @@ export function RunsTable() {
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
-      <div className="overflow-x-auto rounded-md border border-gray-200 bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-200 bg-gray-50 text-gray-600">
-            <tr>
-              <th className="px-3 py-2">Línea</th>
-              <th className="px-3 py-2">Meses</th>
-              <th className="px-3 py-2">Estado</th>
-              <th className="px-3 py-2">Encontrados</th>
-              <th className="px-3 py-2">Procesados</th>
-              <th className="px-3 py-2">Fallidos</th>
-              <th className="px-3 py-2">Sin actividad</th>
-              <th className="px-3 py-2">Guardados</th>
-              <th className="px-3 py-2">Inicio</th>
-              <th className="px-3 py-2">Fin</th>
-              <th className="px-3 py-2">Error</th>
-              <th className="px-3 py-2">CSV</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="bg-background overflow-hidden rounded-md border shadow-sm">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead>Línea</TableHead>
+              <TableHead>Meses</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Encontrados</TableHead>
+              <TableHead>Procesados</TableHead>
+              <TableHead>Fallidos</TableHead>
+              <TableHead>Sin actividad</TableHead>
+              <TableHead>Guardados</TableHead>
+              <TableHead>Inicio</TableHead>
+              <TableHead>Fin</TableHead>
+              <TableHead>Error</TableHead>
+              <TableHead>CSV</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {isLoading ? (
-              <tr>
-                <td colSpan={COLUMN_COUNT} className="px-3 py-6 text-center text-gray-400">
+              <TableRow>
+                <TableCell colSpan={COLUMN_COUNT} className="text-muted-foreground text-center">
                   Cargando…
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : null}
             {!isLoading && runs.length === 0 ? (
-              <tr>
-                <td colSpan={COLUMN_COUNT} className="px-3 py-6 text-center text-gray-400">
+              <TableRow>
+                <TableCell colSpan={COLUMN_COUNT} className="text-muted-foreground text-center">
                   Sin corridas registradas todavía.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : null}
             {runs.map((run) => {
               const failedChats = run.failed_chats ?? []
@@ -100,13 +108,15 @@ export function RunsTable() {
 
               return (
                 <Fragment key={run.id}>
-                  <tr className="border-b border-gray-100 last:border-0">
-                    <td className="px-3 py-2">{run.line_label}</td>
-                    <td className="px-3 py-2">{run.months_limit ?? 'Sin límite'}</td>
-                    <td className="px-3 py-2">{run.status}</td>
-                    <td className="px-3 py-2">{run.chats_found}</td>
-                    <td className="px-3 py-2">{run.chats_processed}</td>
-                    <td className="px-3 py-2">
+                  <TableRow>
+                    <TableCell>{run.line_label}</TableCell>
+                    <TableCell>{run.months_limit ?? 'Sin límite'}</TableCell>
+                    <TableCell>
+                      <Badge variant={STATUS_VARIANT[run.status]}>{run.status}</Badge>
+                    </TableCell>
+                    <TableCell>{run.chats_found}</TableCell>
+                    <TableCell>{run.chats_processed}</TableCell>
+                    <TableCell>
                       {failedChats.length > 0 ? (
                         <button
                           type="button"
@@ -119,8 +129,8 @@ export function RunsTable() {
                       ) : (
                         run.chats_failed
                       )}
-                    </td>
-                    <td className="px-3 py-2">
+                    </TableCell>
+                    <TableCell>
                       {emptyChats.length > 0 ? (
                         <span className="inline-flex items-center gap-2">
                           <button
@@ -142,12 +152,12 @@ export function RunsTable() {
                       ) : (
                         emptyChats.length
                       )}
-                    </td>
-                    <td className="px-3 py-2">{run.messages_saved}</td>
-                    <td className="px-3 py-2">{formatDate(run.started_at)}</td>
-                    <td className="px-3 py-2">{formatDate(run.finished_at)}</td>
-                    <td className="px-3 py-2 text-red-600">{run.error_message ?? '—'}</td>
-                    <td className="px-3 py-2">
+                    </TableCell>
+                    <TableCell>{run.messages_saved}</TableCell>
+                    <TableCell>{formatDate(run.started_at)}</TableCell>
+                    <TableCell>{formatDate(run.finished_at)}</TableCell>
+                    <TableCell className="text-red-600">{run.error_message ?? '—'}</TableCell>
+                    <TableCell>
                       <a
                         href={getExportUrl(run.id)}
                         className="inline-flex items-center gap-1 text-blue-600 hover:underline"
@@ -155,27 +165,27 @@ export function RunsTable() {
                         <Download size={14} />
                         Descargar
                       </a>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                   {isFailedExpanded ? (
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <td colSpan={COLUMN_COUNT} className="px-3 py-3">
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                      <TableCell colSpan={COLUMN_COUNT}>
                         <FailedChatsList failedChats={failedChats} alwaysOpen />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : null}
                   {isEmptyExpanded ? (
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <td colSpan={COLUMN_COUNT} className="px-3 py-3">
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                      <TableCell colSpan={COLUMN_COUNT}>
                         <EmptyChatsList emptyChats={emptyChats} alwaysOpen />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ) : null}
                 </Fragment>
               )
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   )

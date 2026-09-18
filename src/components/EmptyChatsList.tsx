@@ -1,5 +1,7 @@
+import { TriangleAlert } from 'lucide-react'
 import type { EmptyChat } from '../api/types'
 import { CollapsibleAlert } from './ui/collapsible-alert'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
 interface EmptyChatsListProps {
   emptyChats: EmptyChat[]
@@ -17,28 +19,35 @@ export function EmptyChatsList({ emptyChats, className, alwaysOpen }: EmptyChats
       alwaysOpen={alwaysOpen}
       label={`${emptyChats.length} chat${emptyChats.length === 1 ? '' : 's'} sin actividad — sin mensajes para guardar`}
     >
-      <table className="w-full text-left text-sm">
-        <thead className="bg-gray-50 text-gray-600">
-          <tr>
-            <th className="px-3 py-2">Chat</th>
-            <th className="px-3 py-2">Número</th>
-            <th className="px-3 py-2">Motivo</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            <TableHead className="h-auto px-3 py-2">Chat</TableHead>
+            <TableHead className="h-auto px-3 py-2">Número</TableHead>
+            <TableHead className="h-auto px-3 py-2">Motivo</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {emptyChats.map((chat) => (
-            <tr key={chat.chatId} className="border-t border-gray-100">
-              <td className="px-3 py-2">{chat.chatName || '—'}</td>
+            <TableRow key={chat.chatId}>
+              <TableCell className="px-3 py-2">{chat.chatName || '—'}</TableCell>
               {/* chatNumber es null para grupos (no tienen un numero "dueño") o
                   cuando WhatsApp no dejo resolver el @lid - en esos casos se
                   muestra el id interno como ultimo recurso, para no dejar la
                   celda vacia. */}
-              <td className="px-3 py-2 text-gray-500">{chat.chatNumber || chat.chatId}</td>
-              <td className="px-3 py-2 text-amber-700">{chat.reason}</td>
-            </tr>
+              <TableCell className="text-muted-foreground px-3 py-2">
+                {chat.chatNumber || chat.chatId}
+              </TableCell>
+              <TableCell className="max-w-sm px-3 py-2 text-amber-700">
+                <span className="flex items-start gap-1.5" title={chat.reason}>
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">{chat.reason}</span>
+                </span>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </CollapsibleAlert>
   )
 }
