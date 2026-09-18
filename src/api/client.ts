@@ -46,3 +46,7 @@ export function getRuns(): Promise<RunRecord[]> {
 export function getExportUrl(runId: number): string {
   return `${API_URL}/api/export?runId=${runId}`
 }
+
+export function getEmptyExportUrl(runId: number): string {
+  return `${API_URL}/api/export/empty?runId=${runId}`
+}

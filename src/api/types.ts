@@ -8,12 +8,16 @@ export type StatusState =
 
 export interface FailedChat {
   chatId: string
+  chatNumber: string | null
+  isGroup: boolean
   chatName: string
   error: string
 }
 
 export interface EmptyChat {
   chatId: string
+  chatNumber: string | null
+  isGroup: boolean
   chatName: string
   reason: string
 }

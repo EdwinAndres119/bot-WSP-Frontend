@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Download } from 'lucide-react'
-import { ApiError, getExportUrl, getRuns } from '../api/client'
+import { ApiError, getEmptyExportUrl, getExportUrl, getRuns } from '../api/client'
 import type { RunRecord } from '../api/types'
 import { EmptyChatsList } from './EmptyChatsList'
 import { FailedChatsList } from './FailedChatsList'
@@ -122,14 +122,23 @@ export function RunsTable() {
                     </td>
                     <td className="px-3 py-2">
                       {emptyChats.length > 0 ? (
-                        <button
-                          type="button"
-                          onClick={() => togglePanel(run.id, 'empty')}
-                          className="inline-flex items-center gap-1 text-amber-700 hover:underline"
-                        >
-                          {emptyChats.length}
-                          {isEmptyExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        </button>
+                        <span className="inline-flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => togglePanel(run.id, 'empty')}
+                            className="inline-flex items-center gap-1 text-amber-700 hover:underline"
+                          >
+                            {emptyChats.length}
+                            {isEmptyExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </button>
+                          <a
+                            href={getEmptyExportUrl(run.id)}
+                            title="Descargar chats sin actividad (CSV)"
+                            className="inline-flex items-center text-amber-700 hover:text-amber-900"
+                          >
+                            <Download size={14} />
+                          </a>
+                        </span>
                       ) : (
                         emptyChats.length
                       )}
